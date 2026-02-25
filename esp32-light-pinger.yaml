@@ -1,0 +1,75 @@
+substitutions:
+  device_name: "light-pinger"
+  device_friendly_name: "Light Pinger"
+  device_description: "Ping Healthchecks.io to know if there is a PowerGrid present"
+  ping_interval: 30s
+  ping_url: "http://hc-ping.com/00000000-0000-0000-0000-000000000000"
+  SSID: ""
+  SSID_PASSWORD: ""
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+logger:
+
+http_request:
+  id: ping_request
+  useragent: esphome/esp32-light-pinger
+  timeout: 3s
+  watchdog_timeout: 5s
+
+interval:
+  - interval: ${ping_interval}
+    then:
+      - http_request.get:
+          url: ${ping_url}
+          on_response:
+            then:
+              - logger.log:
+                  level: INFO
+                  format: "Healthchecks.io pinged successfully"
+          on_error:
+            then:
+              - logger.log:
+                  level: WARN
+                  format: "Healthchecks.io ping failed, skipping"
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${device_friendly_name}
+  comment: ${device_description}
+  name_add_mac_suffix: false
+
+# OTA configuration #
+ota:
+  - platform: web_server
+    id: ota_web_server
+
+captive_portal:
+
+web_server:
+  port: 80
+  local: true
+  version: 3
+
+# Basic configuration #
+button:
+  # Restart the ESP
+  - platform: restart
+    name: "Restart - ${device_friendly_name}"
+
+api:
+  reboot_timeout: 0s
+  encryption:
+    key: ""
+
+wifi:
+  networks:
+  - ssid: I${SSID}
+    password: ${SSID_PASSWORD}
+
+  ap:
+    ssid: ${device_friendly_name}
+    password: ""

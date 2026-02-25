@@ -1,0 +1,15 @@
+.env
+.env.*
+artifacts/
+node_modules/
+.git/
+.github/
+.gitlab-ci.yml
+.nvmrc
+.prettierrc.json
+README.md
+.gitignore
+Dockerfile
+docker-compose.yml
+.dockerignore
+src/config/

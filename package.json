@@ -1,14 +1,18 @@
 {
-  "name": "dtek-monitor",
-  "version": "1.2.0",
+  "name": "power-monitoring-bot",
+  "version": "0.0.1",
   "description": "DTEK power outages monitor",
   "type": "module",
   "main": "src/monitor.js",
   "scripts": {
     "start": "node --env-file=.env ./src/monitor.js",
-    "watch": "node --env-file=.env --watch ./src/monitor.js"
+    "start:service": "node --env-file=.env ./src/server.js",
+    "watch": "node --env-file=.env --watch ./src/monitor.js",
+    "watch:service": "node --env-file=.env --watch ./src/server.js"
   },
   "dependencies": {
+    "express": "^5.1.0",
+    "node-cron": "^3.0.3",
     "playwright": "^1.55.0"
   },
   "engines": {
@@ -20,8 +24,9 @@
     "outages",
     "bot",
     "telegram",
-    "dtek"
+    "dtek",
+    "ntfy"
   ],
-  "author": "Bohdan Yatsenko",
+  "author": "TheGarmr",
   "license": "MIT"
 }

@@ -1,0 +1,21 @@
+services:
+  power-monitoring-bot:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: "power-monitoring-bot"
+    restart: always
+    environment:
+      - TZ=Europe/Kiev
+      - TELEGRAM_CHAT_ID=
+      - TELEGRAM_BOT_TOKEN=
+      - NTFY_URL=https://ntfy.sh
+      - NTFY_TOPIC=power-monitoring
+      - NTFY_AUTH_TOKEN=
+      - CRON_INTERVAL=10
+      - PORT=3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./artifacts:/app/artifacts
+      - ./addresses.json:/app/src/config/addresses.json

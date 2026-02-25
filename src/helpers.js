@@ -34,7 +34,7 @@ export function loadLastMessage() {
 }
 
 export function saveLastMessage({ date, message_id } = {}) {
-  fs.mkdirSync(path.dirname(LAST_MESSAGE_FILE), { recursive: true })
+  mkdirRecursive(path.dirname(LAST_MESSAGE_FILE));
   fs.writeFileSync(
     LAST_MESSAGE_FILE,
     JSON.stringify({
@@ -45,7 +45,7 @@ export function saveLastMessage({ date, message_id } = {}) {
 }
 
 export function deleteLastMessage() {
-  fs.rmdirSync(path.dirname(LAST_MESSAGE_FILE), { recursive: true })
+  mkdirRecursive(path.dirname(LAST_MESSAGE_FILE));
 }
 
 export function getCurrentTime() {
@@ -62,4 +62,10 @@ export function getCurrentTime() {
   })
 
   return `${time} ${date}`
+}
+
+function mkdirRecursive(dir) {
+  if (fs.existsSync(dir)) return;
+  mkdirRecursive(path.dirname(dir));
+  fs.mkdirSync(dir);
 }
