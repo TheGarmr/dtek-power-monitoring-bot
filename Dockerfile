@@ -9,9 +9,9 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci --omit=dev && npx playwright install --with-deps chromium
 
-COPY . .
+COPY src ./src
 
-RUN mkdir -p /app/artifacts
+RUN mkdir -p /app/artifacts /app/src/config
 
 EXPOSE 3000
 
