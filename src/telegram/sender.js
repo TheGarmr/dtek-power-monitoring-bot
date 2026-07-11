@@ -44,3 +44,25 @@ export async function editTelegramMessage(messageId, text) {
 
   return data.result
 }
+
+export async function deleteTelegramMessage(messageId) {
+  const response = await fetch(`${BASE_URL}/deleteMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: TELEGRAM_CHAT_ID,
+      message_id: messageId,
+    }),
+  })
+
+  const data = await response.json()
+  if (!data.ok) {
+    if (data.description?.includes("message to delete not found")) {
+      console.log("ℹ️ Telegram message already deleted, skip delete.")
+      return
+    }
+    throw new Error(`Telegram deleteMessage failed: ${data.description}`)
+  }
+
+  return data.result
+}

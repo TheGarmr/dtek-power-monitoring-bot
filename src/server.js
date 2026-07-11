@@ -26,6 +26,7 @@ import {
 import {
   sendTelegramMessage,
   editTelegramMessage,
+  deleteTelegramMessage,
 } from "./telegram/sender.js"
 import {
   messageDownWithInfo,
@@ -102,7 +103,13 @@ async function handleUp(alias) {
     return
   }
 
-  const { city, street, telegramMessageId, downSince } = entry
+  const {
+    city,
+    street,
+    telegramMessageId,
+    newScheduleMessageId,
+    downSince,
+  } = entry
   const houses = normalizeHouses(entry)
   console.log(`⬆️ UP: ${alias} (${city}, ${street} ${houses.join(", ")})`)
 
@@ -118,6 +125,18 @@ async function handleUp(alias) {
       `❌ Failed to edit Telegram message for ${alias}:`,
       error.message
     )
+  }
+
+  if (newScheduleMessageId) {
+    try {
+      await deleteTelegramMessage(newScheduleMessageId)
+      console.log(`🗑️ ${alias}: new schedule notice deleted.`)
+    } catch (error) {
+      console.error(
+        `❌ Failed to delete new schedule notice for ${alias}:`,
+        error.message
+      )
+    }
   }
 
   removeEntry(alias)

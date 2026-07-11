@@ -43,6 +43,7 @@ async function runJob() {
 
       const resolvedHouse = resolveOutage(info, houses)
       const hasInfo = resolvedHouse !== null
+      let newScheduleNotice
 
       let newMessage
       if (hasInfo) {
@@ -60,9 +61,15 @@ async function runJob() {
           )
         } else if (newEndDate && !oldEndDate) {
           console.log(`[CRON] ${alias}: new schedule appeared, end_date: ${newEndDate}, notifying.`)
-          sendTelegramMessage(messageNewSchedule(alias, newEndDate)).catch(err =>
+          try {
+            const result = await sendTelegramMessage(messageNewSchedule(alias, newEndDate))
+            newScheduleNotice = {
+              newScheduleMessageId: result.message_id,
+              newScheduleMessageDate: result.date,
+            }
+          } catch (err) {
             console.error(`[CRON] ${alias}: failed to send new schedule notice:`, err.message)
-          )
+          }
         }
 
         if (oldData === newData && !timestampChanged) {
@@ -81,6 +88,12 @@ async function runJob() {
       if (newInterval !== (entry.checkInterval || CRON_INITIAL_INTERVAL)) {
         console.log(`[CRON] ${alias}: switching check interval to ${newInterval}m.`)
       }
+      const entryUpdates = {
+        lastInfo: info,
+        resolvedHouse,
+        checkInterval: newInterval,
+        ...newScheduleNotice,
+      }
 
       if (telegramMessageId) {
         try {
@@ -91,9 +104,7 @@ async function runJob() {
           )
           const result = await sendTelegramMessage(newMessage)
           updateEntry(alias, {
-            lastInfo: info,
-            resolvedHouse,
-            checkInterval: newInterval,
+            ...entryUpdates,
             telegramMessageId: result.message_id,
             telegramMessageDate: result.date,
           })
@@ -102,7 +113,7 @@ async function runJob() {
         }
       }
 
-      updateEntry(alias, { lastInfo: info, resolvedHouse, checkInterval: newInterval })
+      updateEntry(alias, entryUpdates)
       console.log(`[CRON] ${alias}: Telegram message updated.`)
     } catch (error) {
       console.error(`[CRON] Error checking ${entry.alias}:`, error.message)
